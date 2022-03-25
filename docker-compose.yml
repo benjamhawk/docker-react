@@ -1,0 +1,42 @@
+# specify version number of docker compose
+version: '3'
+
+# services are containers
+services:
+  # name of the service
+  web: 
+    build: 
+    # tell docker to use current directory as context
+      context: .
+    # specify the dockerfile to use for image
+      dockerfile: Dockerfile.dev
+    # route port 3000 of container to port 3000 of host
+    ports: 
+      - "3000:3000"
+      
+    volumes:
+    # Since there is only one path given it tells docker
+    # to bookmark node_modules insinde the container.
+    # It basically tells it to skip node_modles when creating 
+    # the ntext pointer
+      - /app/node_modules
+      # This has two paths separated by a colon.
+      # tell the container to watch the files inside the 
+      # current working directory as though the are inside /app of container
+      - .:/app
+  # The issue with running active tests during development with docker-compose up
+  # is that the test runner runs inside of a conatiner. Terminal
+  #  on my computer is not able to attach to the test runner, 
+  # so you can only read the output from the tests.
+  # only way to use Jest testrunner fully is to run 
+  # docker exect -it [running container from web] npm run test
+  # This will be piggyback on the web container
+  tests: 
+    build:     
+      context: .    
+      dockerfile: Dockerfile.dev            
+    volumes:    
+      - /app/node_modules      
+      - .:/app
+    # test docker what command to run once container is started
+    command: [ "npm", "test" ]
