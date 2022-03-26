@@ -8,6 +8,8 @@ RUN npm run build
 
 # Phase 2: run with nginx
 FROM nginx
+# elatic beanstalk requires port to expose
+EXPOSE 80
 # Copy build folder from phase 1
 # target lockation is specified in nxinx container docs
 COPY --from=builder /app/build /usr/share/nginx/html
